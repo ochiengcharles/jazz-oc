@@ -36,7 +36,6 @@
             --online-green: #22c55e;
             --online-green-bright: #4ade80;
             --offline-gray: #94a3b8;
-            --away-yellow: #eab308;
         }
 
         body {
@@ -379,11 +378,13 @@
             border-radius: 50%;
             border: 2px solid white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease;
         }
         
         .msg-avatar .online-indicator.online {
             background-color: var(--online-green);
             box-shadow: 0 0 8px var(--online-green-bright);
+            animation: pulse-online 2s infinite;
         }
         
         .msg-name {
@@ -402,6 +403,7 @@
             font-size: 0.7rem;
             font-weight: 600;
             margin-left: 8px;
+            transition: all 0.3s ease;
         }
         
         .msg-status-badge.online {
@@ -474,6 +476,150 @@
 
         audio { border-radius: 30px; max-width: 220px; height: 40px; }
         .msg img { border-radius: 20px; max-width: 220px; }
+
+        /* --- user list sidebar --- */
+        #users-sidebar {
+            position: fixed;
+            right: 20px;
+            top: 90px;
+            width: 280px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(255,255,255,0.8);
+            z-index: 25;
+            display: none;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        #users-sidebar.visible {
+            display: block;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .sidebar-header h4 {
+            font-size: 1rem;
+            color: var(--text-dark);
+        }
+
+        .sidebar-header span {
+            background: var(--accent-electric);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .user-list-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 12px;
+            margin-bottom: 5px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .user-list-item:hover {
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .user-list-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .user-list-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .user-list-avatar .online-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            border: 2px solid white;
+            border-radius: 50%;
+        }
+
+        .user-list-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-list-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-list-status {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .user-list-status i {
+            font-size: 0.6rem;
+        }
+
+        .user-list-status.online {
+            color: var(--online-green);
+        }
+
+        .toggle-sidebar {
+            position: fixed;
+            right: 20px;
+            bottom: 100px;
+            background: var(--accent-electric);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+            z-index: 26;
+            border: none;
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+
+        .toggle-sidebar:hover {
+            transform: scale(1.1);
+        }
 
         /* --- input area --- */
         #input-container {
@@ -572,6 +718,13 @@
             .msg-content { padding-left: 42px; }
             .msg.mine .msg-content { padding-right: 42px; }
             .msg-last-seen { margin-left: 42px; }
+            #users-sidebar { 
+                width: 90%;
+                right: 5%;
+            }
+            .toggle-sidebar { 
+                bottom: 80px;
+            }
         }
     </style>
 </head>
@@ -649,6 +802,22 @@
         <button id="auth-button" onclick="toggleAuthUI()"><i class="fas fa-right-to-bracket"></i> Login</button>
     </div>
 </header>
+
+<!-- USERS SIDEBAR -->
+<button class="toggle-sidebar" onclick="toggleSidebar()" title="Show online users">
+    <i class="fas fa-users"></i>
+</button>
+
+<div id="users-sidebar">
+    <div class="sidebar-header">
+        <h4>Online Users</h4>
+        <span id="online-count">0</span>
+    </div>
+    <div id="user-list">
+        <!-- Users will be populated here -->
+        <div style="text-align: center; color: var(--text-light); padding: 20px;">No users online</div>
+    </div>
+</div>
 
 <!-- MAIN CHAT CONTAINER -->
 <div id="chat-box">
@@ -730,6 +899,9 @@
     const profileEmail = document.getElementById("profile-email");
     const selfOnlineIndicator = document.getElementById("self-online-indicator");
     const selfStatusText = document.getElementById("self-status-text");
+    const usersSidebar = document.getElementById("users-sidebar");
+    const userList = document.getElementById("user-list");
+    const onlineCount = document.getElementById("online-count");
 
     let currentUser = null;
     let replyToMessage = null;
@@ -742,6 +914,11 @@
     const userProfileCache = {};
     // Cache for online status
     const onlineStatusCache = {};
+
+    // Toggle sidebar
+    window.toggleSidebar = function() {
+        usersSidebar.classList.toggle('visible');
+    };
 
     // Helper: Get user initial
     function getUserInitial(name) {
@@ -788,9 +965,103 @@
         }
     }
 
+    // Update user list sidebar
+    function updateUserList() {
+        if (!userList) return;
+        
+        let online = 0;
+        let html = '';
+        
+        // Get all unique user IDs from cache
+        const userIds = Object.keys(userProfileCache);
+        
+        if (userIds.length === 0) {
+            userList.innerHTML = '<div style="text-align: center; color: var(--text-light); padding: 20px;">No users yet</div>';
+            onlineCount.textContent = '0';
+            return;
+        }
+        
+        // Sort users: online first, then by name
+        const sortedUsers = userIds.sort((a, b) => {
+            const aOnline = onlineStatusCache[a]?.online || false;
+            const bOnline = onlineStatusCache[b]?.online || false;
+            if (aOnline && !bOnline) return -1;
+            if (!aOnline && bOnline) return 1;
+            
+            const aName = userProfileCache[a]?.displayName || a;
+            const bName = userProfileCache[b]?.displayName || b;
+            return aName.localeCompare(bName);
+        });
+        
+        sortedUsers.forEach(uid => {
+            const profile = userProfileCache[uid];
+            if (!profile) return;
+            
+            const status = onlineStatusCache[uid] || { online: false, lastSeen: null };
+            const displayName = profile.displayName || (profile.email ? profile.email.split('@')[0] : 'User');
+            const initial = getUserInitial(displayName);
+            const color = profile.color;
+            const avatarURL = profile.avatarURL;
+            
+            if (status.online) online++;
+            
+            let avatarHtml = '';
+            if (avatarURL) {
+                avatarHtml = `<img src="${avatarURL}" alt="${initial}">`;
+            } else {
+                avatarHtml = initial;
+            }
+            
+            const statusText = status.online ? 
+                '<span style="color: var(--online-green);"><i class="fas fa-circle"></i> Online</span>' : 
+                `<span style="color: var(--text-light);"><i class="far fa-clock"></i> ${formatLastSeen(status.lastSeen)}</span>`;
+            
+            html += `
+                <div class="user-list-item" onclick="setReplyToUser('${uid}', '${displayName}')">
+                    <div class="user-list-avatar" style="background: ${color}">
+                        ${avatarHtml}
+                        <span class="online-indicator ${status.online ? 'online' : ''}"></span>
+                    </div>
+                    <div class="user-list-info">
+                        <div class="user-list-name">${displayName}</div>
+                        <div class="user-list-status ${status.online ? 'online' : ''}">
+                            ${statusText}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        if (html === '') {
+            html = '<div style="text-align: center; color: var(--text-light); padding: 20px;">No other users</div>';
+        }
+        
+        userList.innerHTML = html;
+        onlineCount.textContent = online;
+    }
+
+    // Set reply to a user from sidebar
+    window.setReplyToUser = function(uid, name) {
+        // Find the last message from this user to reply to
+        const messages = document.querySelectorAll(`.msg[data-uid="${uid}"]`);
+        if (messages.length > 0) {
+            const lastMsg = messages[messages.length - 1];
+            const text = lastMsg.querySelector('.msg-content')?.textContent || 'Message';
+            setReply(lastMsg.id, uid, name, text);
+        }
+    };
+
     // Update online status for a user
     function updateOnlineStatus(uid, status) {
+        console.log('Updating status for', uid, status);
+        
         onlineStatusCache[uid] = status;
+        
+        // Update user profile cache with status
+        if (userProfileCache[uid]) {
+            userProfileCache[uid].online = status.online;
+            userProfileCache[uid].lastSeen = status.lastSeen;
+        }
         
         // Update message bubbles for this user
         document.querySelectorAll(`.msg[data-uid="${uid}"]`).forEach(msgEl => {
@@ -804,17 +1075,9 @@
                 }
             }
             
-            // Update status badge if exists
+            // Update status badge
             let badge = msgEl.querySelector('.msg-status-badge');
-            if (!badge) {
-                const nameEl = msgEl.querySelector('.msg-name');
-                if (nameEl) {
-                    badge = document.createElement('span');
-                    badge.className = `msg-status-badge ${status.online ? 'online' : 'offline'}`;
-                    badge.innerHTML = status.online ? '<i class="fas fa-circle"></i> Online' : '<i class="fas fa-circle"></i> Offline';
-                    nameEl.appendChild(badge);
-                }
-            } else {
+            if (badge) {
                 badge.className = `msg-status-badge ${status.online ? 'online' : 'offline'}`;
                 badge.innerHTML = status.online ? '<i class="fas fa-circle"></i> Online' : '<i class="fas fa-circle"></i> Offline';
             }
@@ -842,10 +1105,70 @@
             }
         });
         
-        // Update cache
-        if (userProfileCache[uid]) {
-            userProfileCache[uid].online = status.online;
-            userProfileCache[uid].lastSeen = status.lastSeen;
+        // Update sidebar
+        updateUserList();
+    }
+
+    // Load user profile
+    async function loadUserProfile(uid) {
+        if (userProfileCache[uid]) return userProfileCache[uid];
+        
+        try {
+            console.log('Loading profile for', uid);
+            
+            const [profileSnap, presenceSnap] = await Promise.all([
+                usersRef.child(uid).once('value'),
+                presenceRef.child(uid).once('value')
+            ]);
+            
+            const data = profileSnap.val();
+            const presence = presenceSnap.val();
+            
+            // If no profile exists in users node, create one from auth data
+            if (!data && currentUser && uid === currentUser.uid) {
+                const newProfile = {
+                    displayName: currentUser.displayName || currentUser.email.split('@')[0],
+                    email: currentUser.email,
+                    createdAt: Date.now(),
+                    avatarURL: null
+                };
+                await usersRef.child(uid).set(newProfile);
+                data = newProfile;
+            }
+            
+            const profile = {
+                displayName: data?.displayName || null,
+                avatarURL: data?.avatarURL || null,
+                email: data?.email || '',
+                color: getUserAvatarColor(uid),
+                online: presence?.online || false,
+                lastSeen: presence?.lastSeen || null
+            };
+            
+            userProfileCache[uid] = profile;
+            
+            // Also cache the online status
+            if (presence) {
+                onlineStatusCache[uid] = { 
+                    online: presence.online || false, 
+                    lastSeen: presence.lastSeen || null 
+                };
+            }
+            
+            // Update sidebar
+            updateUserList();
+            
+            return profile;
+        } catch (error) {
+            console.warn("Error loading profile:", error);
+            return {
+                displayName: null,
+                avatarURL: null,
+                email: '',
+                color: getUserAvatarColor(uid),
+                online: false,
+                lastSeen: null
+            };
         }
     }
 
@@ -853,30 +1176,55 @@
     function setupPresence(user) {
         if (!user) return;
         
+        console.log('Setting up presence for', user.uid);
+        
         const userStatusRef = presenceRef.child(user.uid);
         const connectedRef = db.ref('.info/connected');
         
         // Remove old listeners
         connectedRef.off();
         userStatusRef.off();
+        presenceRef.off();
         
         // Listen for connection state
         connectedRef.on('value', (snap) => {
             if (snap.val() === true) {
-                // We're connected, set up presence
+                console.log('Connected to Firebase, setting presence');
+                
+                // When we disconnect, set offline status
                 userStatusRef.onDisconnect().set({
                     online: false,
                     lastSeen: Date.now(),
                     email: user.email,
                     displayName: user.displayName || user.email.split('@')[0]
+                }).then(() => {
+                    console.log('OnDisconnect set successfully');
+                }).catch(err => {
+                    console.error('Error setting onDisconnect:', err);
                 });
                 
-                // Set current status
+                // Set current online status
                 userStatusRef.set({
                     online: true,
                     lastSeen: Date.now(),
                     email: user.email,
                     displayName: user.displayName || user.email.split('@')[0]
+                }).then(() => {
+                    console.log('Presence set successfully');
+                    
+                    // Also ensure user profile exists
+                    usersRef.child(user.uid).once('value').then(snap => {
+                        if (!snap.exists()) {
+                            usersRef.child(user.uid).set({
+                                displayName: user.displayName || user.email.split('@')[0],
+                                email: user.email,
+                                createdAt: Date.now(),
+                                avatarURL: null
+                            });
+                        }
+                    });
+                }).catch(err => {
+                    console.error('Error setting presence:', err);
                 });
                 
                 // Update self indicator
@@ -896,60 +1244,38 @@
                 presenceTimer = setInterval(() => {
                     userStatusRef.update({
                         lastSeen: Date.now()
-                    });
+                    }).catch(err => console.error('Error updating last seen:', err));
                 }, 60000);
             }
         });
         
-        // Listen for presence changes of other users
-        presenceRef.on('child_changed', (snap) => {
-            const status = snap.val();
-            updateOnlineStatus(snap.key, status);
-        });
-        
+        // Listen for all presence changes
         presenceRef.on('child_added', (snap) => {
             const status = snap.val();
-            updateOnlineStatus(snap.key, status);
+            console.log('Presence added:', snap.key, status);
+            if (snap.key !== user?.uid) {
+                updateOnlineStatus(snap.key, status);
+                // Also load profile if not cached
+                if (!userProfileCache[snap.key]) {
+                    loadUserProfile(snap.key);
+                }
+            }
         });
-    }
-
-    // Load user profile
-    async function loadUserProfile(uid) {
-        if (userProfileCache[uid]) return userProfileCache[uid];
         
-        try {
-            const [profileSnap, presenceSnap] = await Promise.all([
-                usersRef.child(uid).once('value'),
-                presenceRef.child(uid).once('value')
-            ]);
-            
-            const data = profileSnap.val();
-            const presence = presenceSnap.val();
-            
-            const profile = {
-                displayName: data?.displayName || null,
-                avatarURL: data?.avatarURL || null,
-                email: data?.email || '',
-                color: getUserAvatarColor(uid),
-                online: presence?.online || false,
-                lastSeen: presence?.lastSeen || null
-            };
-            
-            userProfileCache[uid] = profile;
-            onlineStatusCache[uid] = { online: profile.online, lastSeen: profile.lastSeen };
-            
-            return profile;
-        } catch (error) {
-            console.warn("Error loading profile:", error);
-            return {
-                displayName: null,
-                avatarURL: null,
-                email: '',
-                color: getUserAvatarColor(uid),
-                online: false,
-                lastSeen: null
-            };
-        }
+        presenceRef.on('child_changed', (snap) => {
+            const status = snap.val();
+            console.log('Presence changed:', snap.key, status);
+            if (snap.key !== user?.uid) {
+                updateOnlineStatus(snap.key, status);
+            }
+        });
+        
+        presenceRef.on('child_removed', (snap) => {
+            console.log('Presence removed:', snap.key);
+            if (snap.key !== user?.uid) {
+                updateOnlineStatus(snap.key, { online: false, lastSeen: Date.now() });
+            }
+        });
     }
 
     // Render message with avatar and online status
@@ -968,7 +1294,12 @@
             profile = await loadUserProfile(data.uid);
         }
         
-        // CRITICAL FIX: Use profile displayName if available, otherwise use email, NEVER show "User"
+        // Get current online status
+        const status = onlineStatusCache[data.uid] || { online: false, lastSeen: null };
+        const isOnline = status.online;
+        const lastSeen = status.lastSeen;
+        
+        // Get display name
         let displayName = 'Unknown';
         if (profile.displayName) {
             displayName = profile.displayName;
@@ -981,8 +1312,6 @@
         const avatarURL = profile.avatarURL;
         const avatarColor = profile.color;
         const userInitial = getUserInitial(displayName);
-        const isOnline = profile.online;
-        const lastSeen = profile.lastSeen;
         
         // Set reply onclick
         const safeName = displayName.replace(/'/g, "\\'");
@@ -1102,7 +1431,7 @@
         const initial = getUserInitial(currentUser.displayName || currentUser.email);
         avatarInitial.textContent = initial;
         
-        db.ref(`users/${currentUser.uid}`).once('value', (snap) => {
+        usersRef.child(currentUser.uid).once('value', (snap) => {
             const data = snap.val();
             if (data?.avatarURL) {
                 avatarPreview.src = data.avatarURL;
@@ -1343,7 +1672,7 @@
         
         const messageData = {
             uid: currentUser.uid,
-            name: userName, // This ensures we never save "User" to the database
+            name: userName,
             message: text,
             timestamp: time,
             dateSent: now
@@ -1409,12 +1738,12 @@
             const now = Date.now();
             const time = new Date(now).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             
-            // Get the actual username - NEVER save "User"
+            // Get the actual username
             const userName = currentUser.displayName || currentUser.email.split('@')[0];
             
             const fileData = {
                 uid: currentUser.uid,
-                name: userName, // This ensures we never save "User" to the database
+                name: userName,
                 timestamp: time,
                 dateSent: now,
                 fileData: {
@@ -1487,6 +1816,8 @@
 
     // Auth state observer
     auth.onAuthStateChanged(async (user) => {
+        console.log('Auth state changed:', user ? user.uid : 'logged out');
+        
         currentUser = user;
         
         if (user) {
@@ -1560,6 +1891,13 @@
             // Clear listeners
             messagesRef.off('child_added');
             presenceRef.off();
+            
+            // Clear caches
+            Object.keys(userProfileCache).forEach(key => delete userProfileCache[key]);
+            Object.keys(onlineStatusCache).forEach(key => delete onlineStatusCache[key]);
+            
+            // Clear sidebar
+            updateUserList();
         }
     });
 
