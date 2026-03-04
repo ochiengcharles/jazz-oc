@@ -33,6 +33,10 @@
             --border-light: #e9eef4;
             --shadow-card: 0 12px 30px rgba(0, 20, 50, 0.1);
             --header-height: 70px;
+            --online-green: #22c55e;
+            --online-green-bright: #4ade80;
+            --offline-gray: #94a3b8;
+            --away-yellow: #eab308;
         }
 
         body {
@@ -100,40 +104,80 @@
         .user-profile-mini {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             cursor: pointer;
-            padding: 4px 8px 4px 4px;
+            padding: 6px 12px 6px 6px;
             border-radius: 40px;
             transition: background 0.2s;
+            position: relative;
+            background: rgba(255,255,255,0.1);
         }
         .user-profile-mini:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.2);
         }
 
         .user-avatar-mini {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: linear-gradient(145deg, #f97316, #ec4899);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: white;
             border: 2px solid rgba(255,255,255,0.5);
             overflow: hidden;
             text-transform: uppercase;
+            position: relative;
         }
+        
         .user-avatar-mini img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+        
+        .online-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background-color: var(--offline-gray);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .online-indicator.online {
+            background-color: var(--online-green);
+            box-shadow: 0 0 8px var(--online-green-bright);
+            animation: pulse-online 2s infinite;
+        }
+
+        @keyframes pulse-online {
+            0% { box-shadow: 0 0 0 0 var(--online-green); }
+            70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.2); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        .status-text {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-text i {
+            font-size: 0.7rem;
+        }
 
         #user-display-name {
-            font-weight: 500;
-            font-size: 0.95rem;
+            font-weight: 600;
+            font-size: 1rem;
         }
 
         #auth-button {
@@ -298,23 +342,26 @@
         .msg-header {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             margin-bottom: 8px;
+            position: relative;
         }
         
         .msg-avatar {
-            width: 28px;
-            height: 28px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 1rem;
             font-weight: 600;
             color: white;
             overflow: hidden;
             flex-shrink: 0;
             text-transform: uppercase;
+            position: relative;
+            border: 2px solid rgba(255,255,255,0.8);
         }
         
         .msg-avatar img {
@@ -323,10 +370,66 @@
             object-fit: cover;
         }
         
+        .msg-avatar .online-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .msg-avatar .online-indicator.online {
+            background-color: var(--online-green);
+            box-shadow: 0 0 8px var(--online-green-bright);
+        }
+        
         .msg-name {
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 1rem;
             flex: 1;
+            color: var(--text-dark);
+        }
+        
+        .msg-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .msg-status-badge.online {
+            background: rgba(34, 197, 94, 0.15);
+            color: #166534;
+        }
+        
+        .msg-status-badge.offline {
+            background: rgba(100, 116, 139, 0.15);
+            color: #334155;
+        }
+        
+        .msg-last-seen {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-left: 46px;
+            margin-top: -4px;
+            margin-bottom: 8px;
+            padding: 2px 8px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 20px;
+            display: inline-block;
+        }
+        
+        .msg-last-seen i {
+            margin-right: 4px;
+            font-size: 0.7rem;
+            color: var(--text-light);
         }
 
         .reply-context {
@@ -342,12 +445,12 @@
             display: block;
             margin-bottom: 20px;
             word-break: break-word;
-            padding-left: 36px;
+            padding-left: 46px;
         }
 
         .msg.mine .msg-content {
             padding-left: 0;
-            padding-right: 36px;
+            padding-right: 46px;
         }
 
         .msg-info {
@@ -466,8 +569,9 @@
 
         @media (max-width: 600px) {
             .msg { max-width: 85%; }
-            .msg-content { padding-left: 32px; }
-            .msg.mine .msg-content { padding-right: 32px; }
+            .msg-content { padding-left: 42px; }
+            .msg.mine .msg-content { padding-right: 42px; }
+            .msg-last-seen { margin-left: 42px; }
         }
     </style>
 </head>
@@ -535,8 +639,12 @@
             <div class="user-avatar-mini" id="user-avatar-mini">
                 <span id="avatar-mini-initial"></span>
                 <img id="avatar-mini-img" src="" style="display: none;">
+                <span class="online-indicator" id="self-online-indicator"></span>
             </div>
-            <span id="user-display-name">Loading...</span>
+            <div style="display: flex; flex-direction: column;">
+                <span id="user-display-name">Loading...</span>
+                <span class="status-text" id="self-status-text"><i class="fas fa-circle"></i> Online</span>
+            </div>
         </div>
         <button id="auth-button" onclick="toggleAuthUI()"><i class="fas fa-right-to-bracket"></i> Login</button>
     </div>
@@ -596,6 +704,8 @@
     const db = firebase.database();
     const storage = firebase.storage();
     const messagesRef = db.ref("messages");
+    const presenceRef = db.ref("presence");
+    const usersRef = db.ref("users");
 
     // UI Elements
     const chatBox = document.getElementById("chat-box");
@@ -618,15 +728,20 @@
     const avatarInitial = document.getElementById("avatar-initial");
     const profileUsername = document.getElementById("profile-username");
     const profileEmail = document.getElementById("profile-email");
+    const selfOnlineIndicator = document.getElementById("self-online-indicator");
+    const selfStatusText = document.getElementById("self-status-text");
 
     let currentUser = null;
     let replyToMessage = null;
     let mediaRecorder = null;
     let audioChunks = [];
     let audioStream = null;
+    let presenceTimer = null;
     
     // Cache for user profiles
     const userProfileCache = {};
+    // Cache for online status
+    const onlineStatusCache = {};
 
     // Helper: Get user initial
     function getUserInitial(name) {
@@ -645,33 +760,199 @@
         return colors[Math.abs(hash) % colors.length];
     }
 
+    // Format last seen time
+    function formatLastSeen(timestamp) {
+        if (!timestamp) return 'Unknown';
+        
+        const now = Date.now();
+        const diff = now - timestamp;
+        
+        // Less than 1 minute ago
+        if (diff < 60000) {
+            return 'Just now';
+        }
+        // Less than 1 hour ago
+        else if (diff < 3600000) {
+            const minutes = Math.floor(diff / 60000);
+            return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+        }
+        // Less than 24 hours ago
+        else if (diff < 86400000) {
+            const hours = Math.floor(diff / 3600000);
+            return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+        }
+        // More than 24 hours ago
+        else {
+            const date = new Date(timestamp);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        }
+    }
+
+    // Update online status for a user
+    function updateOnlineStatus(uid, status) {
+        onlineStatusCache[uid] = status;
+        
+        // Update message bubbles for this user
+        document.querySelectorAll(`.msg[data-uid="${uid}"]`).forEach(msgEl => {
+            // Update online indicator
+            const indicator = msgEl.querySelector('.msg-avatar .online-indicator');
+            if (indicator) {
+                if (status.online) {
+                    indicator.classList.add('online');
+                } else {
+                    indicator.classList.remove('online');
+                }
+            }
+            
+            // Update status badge if exists
+            let badge = msgEl.querySelector('.msg-status-badge');
+            if (!badge) {
+                const nameEl = msgEl.querySelector('.msg-name');
+                if (nameEl) {
+                    badge = document.createElement('span');
+                    badge.className = `msg-status-badge ${status.online ? 'online' : 'offline'}`;
+                    badge.innerHTML = status.online ? '<i class="fas fa-circle"></i> Online' : '<i class="fas fa-circle"></i> Offline';
+                    nameEl.appendChild(badge);
+                }
+            } else {
+                badge.className = `msg-status-badge ${status.online ? 'online' : 'offline'}`;
+                badge.innerHTML = status.online ? '<i class="fas fa-circle"></i> Online' : '<i class="fas fa-circle"></i> Offline';
+            }
+            
+            // Update last seen
+            let lastSeenEl = msgEl.querySelector('.msg-last-seen');
+            if (!status.online && status.lastSeen) {
+                if (!lastSeenEl) {
+                    lastSeenEl = document.createElement('div');
+                    lastSeenEl.className = 'msg-last-seen';
+                    lastSeenEl.innerHTML = `<i class="far fa-clock"></i> Last seen: ${formatLastSeen(status.lastSeen)}`;
+                    
+                    // Insert after msg-header
+                    const header = msgEl.querySelector('.msg-header');
+                    if (header && header.nextSibling) {
+                        msgEl.insertBefore(lastSeenEl, header.nextSibling);
+                    } else {
+                        msgEl.appendChild(lastSeenEl);
+                    }
+                } else {
+                    lastSeenEl.innerHTML = `<i class="far fa-clock"></i> Last seen: ${formatLastSeen(status.lastSeen)}`;
+                }
+            } else if (status.online && lastSeenEl) {
+                lastSeenEl.remove();
+            }
+        });
+        
+        // Update cache
+        if (userProfileCache[uid]) {
+            userProfileCache[uid].online = status.online;
+            userProfileCache[uid].lastSeen = status.lastSeen;
+        }
+    }
+
+    // Setup presence system
+    function setupPresence(user) {
+        if (!user) return;
+        
+        const userStatusRef = presenceRef.child(user.uid);
+        const connectedRef = db.ref('.info/connected');
+        
+        // Remove old listeners
+        connectedRef.off();
+        userStatusRef.off();
+        
+        // Listen for connection state
+        connectedRef.on('value', (snap) => {
+            if (snap.val() === true) {
+                // We're connected, set up presence
+                userStatusRef.onDisconnect().set({
+                    online: false,
+                    lastSeen: Date.now(),
+                    email: user.email,
+                    displayName: user.displayName || user.email.split('@')[0]
+                });
+                
+                // Set current status
+                userStatusRef.set({
+                    online: true,
+                    lastSeen: Date.now(),
+                    email: user.email,
+                    displayName: user.displayName || user.email.split('@')[0]
+                });
+                
+                // Update self indicator
+                if (selfOnlineIndicator) {
+                    selfOnlineIndicator.classList.add('online');
+                }
+                if (selfStatusText) {
+                    selfStatusText.innerHTML = '<i class="fas fa-circle" style="color: #22c55e;"></i> Online';
+                }
+                
+                // Clear any existing timer
+                if (presenceTimer) {
+                    clearInterval(presenceTimer);
+                }
+                
+                // Update last seen every minute while online
+                presenceTimer = setInterval(() => {
+                    userStatusRef.update({
+                        lastSeen: Date.now()
+                    });
+                }, 60000);
+            }
+        });
+        
+        // Listen for presence changes of other users
+        presenceRef.on('child_changed', (snap) => {
+            const status = snap.val();
+            updateOnlineStatus(snap.key, status);
+        });
+        
+        presenceRef.on('child_added', (snap) => {
+            const status = snap.val();
+            updateOnlineStatus(snap.key, status);
+        });
+    }
+
     // Load user profile
     async function loadUserProfile(uid) {
         if (userProfileCache[uid]) return userProfileCache[uid];
         
         try {
-            const snapshot = await db.ref(`users/${uid}`).once('value');
-            const data = snapshot.val();
+            const [profileSnap, presenceSnap] = await Promise.all([
+                usersRef.child(uid).once('value'),
+                presenceRef.child(uid).once('value')
+            ]);
+            
+            const data = profileSnap.val();
+            const presence = presenceSnap.val();
+            
             const profile = {
-                displayName: data?.displayName || 'User',
+                displayName: data?.displayName || null,
                 avatarURL: data?.avatarURL || null,
                 email: data?.email || '',
-                color: getUserAvatarColor(uid)
+                color: getUserAvatarColor(uid),
+                online: presence?.online || false,
+                lastSeen: presence?.lastSeen || null
             };
+            
             userProfileCache[uid] = profile;
+            onlineStatusCache[uid] = { online: profile.online, lastSeen: profile.lastSeen };
+            
             return profile;
         } catch (error) {
             console.warn("Error loading profile:", error);
             return {
-                displayName: 'User',
+                displayName: null,
                 avatarURL: null,
                 email: '',
-                color: getUserAvatarColor(uid)
+                color: getUserAvatarColor(uid),
+                online: false,
+                lastSeen: null
             };
         }
     }
 
-    // Render message with avatar
+    // Render message with avatar and online status
     async function renderMessage(id, data) {
         if (document.getElementById(id)) return;
         
@@ -679,6 +960,7 @@
         const msgDiv = document.createElement('div');
         msgDiv.className = `msg ${isMine ? 'mine' : 'theirs'}`;
         msgDiv.id = id;
+        msgDiv.setAttribute('data-uid', data.uid);
         
         // Load sender profile
         let profile = userProfileCache[data.uid];
@@ -686,31 +968,61 @@
             profile = await loadUserProfile(data.uid);
         }
         
-        const displayName = profile.displayName || data.name;
+        // CRITICAL FIX: Use profile displayName if available, otherwise use email, NEVER show "User"
+        let displayName = 'Unknown';
+        if (profile.displayName) {
+            displayName = profile.displayName;
+        } else if (profile.email) {
+            displayName = profile.email.split('@')[0];
+        } else if (data.name && data.name !== 'User') {
+            displayName = data.name;
+        }
+        
         const avatarURL = profile.avatarURL;
         const avatarColor = profile.color;
         const userInitial = getUserInitial(displayName);
+        const isOnline = profile.online;
+        const lastSeen = profile.lastSeen;
         
         // Set reply onclick
         const safeName = displayName.replace(/'/g, "\\'");
         const safeText = (data.message || '').replace(/'/g, "\\'");
         msgDiv.setAttribute('onclick', `setReply('${id}', '${data.uid}', '${safeName}', '${safeText}')`);
 
-        // Avatar HTML
+        // Avatar HTML with online indicator
         let avatarHtml = '';
         if (avatarURL) {
-            avatarHtml = `<div class="msg-avatar"><img src="${avatarURL}" alt="${userInitial}"></div>`;
+            avatarHtml = `<div class="msg-avatar"><img src="${avatarURL}" alt="${userInitial}"><span class="online-indicator ${isOnline ? 'online' : ''}"></span></div>`;
         } else {
-            avatarHtml = `<div class="msg-avatar" style="background: ${avatarColor}">${userInitial}</div>`;
+            avatarHtml = `<div class="msg-avatar" style="background: ${avatarColor}">${userInitial}<span class="online-indicator ${isOnline ? 'online' : ''}"></span></div>`;
+        }
+
+        // Status badge
+        const statusBadge = `<span class="msg-status-badge ${isOnline ? 'online' : 'offline'}">${isOnline ? '<i class="fas fa-circle"></i> Online' : '<i class="fas fa-circle"></i> Offline'}</span>`;
+
+        // Last seen text (only for offline users)
+        let lastSeenHtml = '';
+        if (!isMine && !isOnline && lastSeen) {
+            lastSeenHtml = `<div class="msg-last-seen"><i class="far fa-clock"></i> Last seen: ${formatLastSeen(lastSeen)}</div>`;
         }
 
         // Reply context
         let replyHtml = '';
         if (data.reply) {
-            let repliedName = data.reply.name;
+            let repliedName = 'Unknown';
+            
+            // Try to get the replied user's name from cache
             if (data.reply.uid && userProfileCache[data.reply.uid]) {
-                repliedName = userProfileCache[data.reply.uid].displayName || repliedName;
+                const replyProfile = userProfileCache[data.reply.uid];
+                if (replyProfile.displayName) {
+                    repliedName = replyProfile.displayName;
+                } else if (replyProfile.email) {
+                    repliedName = replyProfile.email.split('@')[0];
+                }
+            } else if (data.reply.name && data.reply.name !== 'User') {
+                repliedName = data.reply.name;
             }
+            
             replyHtml = `<div class="reply-context">
                 <i class="fas fa-reply" style="margin-right: 6px; color:#4f46e5;"></i>
                 <strong>${repliedName}</strong> ${data.reply.text}
@@ -725,8 +1037,9 @@
                 contentHtml = `
                     <div class="msg-header">
                         ${avatarHtml}
-                        <span class="msg-name">${displayName}</span>
+                        <span class="msg-name">${displayName} ${statusBadge}</span>
                     </div>
+                    ${lastSeenHtml}
                     <div class="msg-content">
                         <audio controls src="${f.url}"></audio>
                         <small style="display:block; margin-top:4px;"><i class="fas fa-microphone"></i> voice note</small>
@@ -735,8 +1048,9 @@
                 contentHtml = `
                     <div class="msg-header">
                         ${avatarHtml}
-                        <span class="msg-name">${displayName}</span>
+                        <span class="msg-name">${displayName} ${statusBadge}</span>
                     </div>
+                    ${lastSeenHtml}
                     <div class="msg-content">
                         <a href="${f.url}" target="_blank"><img src="${f.url}"></a>
                     </div>`;
@@ -744,8 +1058,9 @@
                 contentHtml = `
                     <div class="msg-header">
                         ${avatarHtml}
-                        <span class="msg-name">${displayName}</span>
+                        <span class="msg-name">${displayName} ${statusBadge}</span>
                     </div>
+                    ${lastSeenHtml}
                     <div class="msg-content">
                         <a href="${f.url}" target="_blank">
                             <i class="fas fa-download"></i> ${f.name}
@@ -756,8 +1071,9 @@
             contentHtml = `
                 <div class="msg-header">
                     ${avatarHtml}
-                    <span class="msg-name">${displayName}</span>
+                    <span class="msg-name">${displayName} ${statusBadge}</span>
                 </div>
+                ${lastSeenHtml}
                 <div class="msg-content">
                     ${data.message || ''}
                 </div>`;
@@ -826,7 +1142,7 @@
             const url = await storageRef.getDownloadURL();
             
             // Update database
-            await db.ref(`users/${currentUser.uid}`).update({ 
+            await usersRef.child(currentUser.uid).update({ 
                 avatarURL: url,
                 displayName: currentUser.displayName,
                 email: currentUser.email
@@ -856,7 +1172,7 @@
         
         currentUser.updateProfile({ displayName: newUsername })
             .then(() => {
-                return db.ref(`users/${currentUser.uid}`).update({ 
+                return usersRef.child(currentUser.uid).update({ 
                     displayName: newUsername,
                     email: currentUser.email
                 });
@@ -912,7 +1228,7 @@
             await cred.user.updateProfile({ displayName: username });
             
             // Create user profile
-            await db.ref(`users/${cred.user.uid}`).set({
+            await usersRef.child(cred.user.uid).set({
                 email: email,
                 displayName: username,
                 createdAt: Date.now(),
@@ -1001,6 +1317,8 @@
         document.querySelector('.msg.selected-for-reply')?.classList.remove('selected-for-reply');
         document.getElementById(id)?.classList.add('selected-for-reply');
         replyToMessage = { id, uid, name, text };
+        
+        // Use the actual name passed from the message
         document.getElementById('reply-preview-name').innerHTML = `<i class="fas fa-reply-all"></i> ${name}`;
         document.getElementById('reply-preview-text').innerText = text;
         document.getElementById('reply-preview').style.display = 'flex';
@@ -1020,9 +1338,12 @@
         const now = Date.now();
         const time = new Date(now).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
         
+        // Get the actual username - NEVER save "User"
+        const userName = currentUser.displayName || currentUser.email.split('@')[0];
+        
         const messageData = {
             uid: currentUser.uid,
-            name: currentUser.displayName || currentUser.email.split('@')[0],
+            name: userName, // This ensures we never save "User" to the database
             message: text,
             timestamp: time,
             dateSent: now
@@ -1088,9 +1409,12 @@
             const now = Date.now();
             const time = new Date(now).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
             
+            // Get the actual username - NEVER save "User"
+            const userName = currentUser.displayName || currentUser.email.split('@')[0];
+            
             const fileData = {
                 uid: currentUser.uid,
-                name: currentUser.displayName || currentUser.email.split('@')[0],
+                name: userName, // This ensures we never save "User" to the database
                 timestamp: time,
                 dateSent: now,
                 fileData: {
@@ -1169,6 +1493,9 @@
             // Load user profile
             await loadUserProfile(user.uid);
             
+            // Setup presence
+            setupPresence(user);
+            
             const displayName = user.displayName || user.email.split('@')[0];
             userDisplayName.textContent = displayName;
             authButton.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
@@ -1211,15 +1538,28 @@
             });
             
         } else {
+            // Clear presence when logged out
+            if (presenceTimer) {
+                clearInterval(presenceTimer);
+                presenceTimer = null;
+            }
+            
             userDisplayName.textContent = 'Guest';
             authButton.innerHTML = '<i class="fas fa-right-to-bracket"></i> Login';
             inputArea.style.display = 'none';
             loggedOutMessage.style.display = 'block';
             profileButton.style.display = 'none';
+            if (selfOnlineIndicator) {
+                selfOnlineIndicator.classList.remove('online');
+            }
+            if (selfStatusText) {
+                selfStatusText.innerHTML = '<i class="fas fa-circle"></i> Offline';
+            }
             chatBox.innerHTML = '<div id="loading-indicator"><i class="fas fa-spinner fa-pulse"></i> Please log in</div>';
             
             // Clear listeners
             messagesRef.off('child_added');
+            presenceRef.off();
         }
     });
 
@@ -1228,6 +1568,19 @@
         const el = document.getElementById(snapshot.key);
         if (el) el.remove();
         if (replyToMessage?.id === snapshot.key) clearReply();
+    });
+
+    // Clean up on page unload
+    window.addEventListener('beforeunload', () => {
+        if (currentUser && presenceTimer) {
+            clearInterval(presenceTimer);
+            presenceRef.child(currentUser.uid).set({
+                online: false,
+                lastSeen: Date.now(),
+                email: currentUser.email,
+                displayName: currentUser.displayName || currentUser.email.split('@')[0]
+            });
+        }
     });
 </script>
 </body>
